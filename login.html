@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prayog | Secure Access - Login</title>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0 ;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        background: linear-gradient(to bottom, #0b1d2c, #1b2b3c);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+      }
+
+      .login-container {
+        background: rgba(20, 35, 50, 0.85);
+        border: 1px solid #2e3e4f;
+        border-radius: 20px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+        width: 100%;
+        max-width: 420px;
+        padding: 40px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+      }
+
+      .login-container h1 {
+        font-size: 26px;
+        margin-bottom: 8px;
+        color: #29c7ac;
+      }
+
+      .login-container p {
+        font-size: 13px;
+        color: #9ba6b2;
+        margin-bottom: 25px;
+      }
+
+      label {
+        display: block;
+        text-align: left;
+        font-size: 14px;
+        color: #d1d9e0;
+        margin-bottom: 6px;
+        margin-top: 15px;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #2e3e4f;
+        background: #0f2438;
+        color: #fff;
+        font-size: 14px;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #29c7ac;
+      }
+
+      button {
+        width: 100%;
+        margin-top: 25px;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        background: #29c7ac;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      button:hover {
+        background: #23ad95;
+      }
+
+      .note {
+        font-size: 12px;
+        color: #7e8a97;
+        margin-top: 20px;
+      }
+
+      .icon {
+        font-size: 40px;
+        color: #29c7ac;
+        margin-bottom: 10px;
+      }
+
+      .toggle-link {
+        color: #29c7ac;
+        cursor: pointer;
+        font-weight: 500;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="login-container">
+      <div class="icon">🔐</div>
+      <h1>Welcome Back</h1>
+      <p>Sign in to continue to Prayog</p>
+
+      <form id="login-form">
+        <label for="login-email">Email</label>
+        <input
+          type="email"
+          id="login-email"
+          placeholder="Enter your registered email"
+          required
+        />
+
+        <label for="login-password">Password</label>
+        <input
+          type="password"
+          id="login-password"
+          placeholder="Enter your password"
+          required
+        />
+
+        <button type="submit">Login</button>
+
+        <p class="note">
+          Don’t have an account?
+          <a href="signup.html" class="toggle-link">Sign Up</a>
+        </p>
+      </form>
+
+      <p class="note">Secure access via hospital intranet only.</p>
+    </div>
+
+    <script>
+      // --- Initialize Supabase client ---
+      const { createClient } = supabase;
+      const SUPABASE_URL = "https://ebnfwbuusxstbyqdgzkm.supabase.co";
+      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVibmZ3YnV1c3hzdGJ5cWRnemttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3OTkwNTQsImV4cCI6MjA3ODM3NTA1NH0.5AfmKXRSjd3VNenizvdzN-Y-UgCpHQakDCRfgCOFhJA";
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const loginForm = document.getElementById("login-form");
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("login-email").value.trim();
+        const password = document.getElementById("login-password").value;
+
+        const { data, error } = await sb.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          console.error("Login error:", error);
+          alert(error.message);
+          return;
+        }
+
+        console.log("Login success:", data);
+        alert("✅ Login successful!");
+
+        // redirect to dashboard after login
+        window.location.href = "dashboard.html";
+      });
+    </script>
+  </body>
+</html>
