@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prayog | Secure Access - Login</title>
+    <title>Prayog | Secure Access - Sign Up</title>
 
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,7 +11,7 @@
     <style>
       * {
         margin: 0;
-        padding: 0 ;
+        padding: 0;
         box-sizing: border-box;
         font-family: "Poppins", sans-serif;
       }
@@ -58,7 +58,8 @@
         margin-top: 15px;
       }
 
-      input {
+      input,
+      select {
         width: 100%;
         padding: 10px;
         border-radius: 8px;
@@ -68,7 +69,8 @@
         font-size: 14px;
       }
 
-      input:focus {
+      input:focus,
+      select:focus {
         outline: none;
         border-color: #29c7ac;
       }
@@ -114,32 +116,64 @@
 
   <body>
     <div class="login-container">
-      <div class="icon">🔐</div>
-      <h1>Welcome Back</h1>
-      <p>Sign in to continue to Prayog</p>
+      <div class="icon">🛡️</div>
+      <h1>Welcome to Prayog</h1>
+      <p>AI-Driven Organ Viability Dashboard</p>
 
-      <form id="login-form">
-        <label for="login-email">Email</label>
+      <form id="signup-form">
+        <label for="new-name">Full Name</label>
+        <input
+          type="text"
+          id="new-name"
+          placeholder="Enter your full name"
+          required
+        />
+
+        <label for="new-hospital-id">Hospital ID</label>
+        <input
+          type="text"
+          id="new-hospital-id"
+          placeholder="Create your Hospital ID"
+          required
+        />
+
+        <label for="new-email">Email</label>
         <input
           type="email"
-          id="login-email"
-          placeholder="Enter your registered email"
+          id="new-email"
+          placeholder="Enter your official email"
           required
         />
 
-        <label for="login-password">Password</label>
+        <label for="new-password">Password</label>
         <input
           type="password"
-          id="login-password"
-          placeholder="Enter your password"
+          id="new-password"
+          placeholder="Create password"
           required
         />
 
-        <button type="submit">Login</button>
+        <label for="confirm-password">Confirm Password</label>
+        <input
+          type="password"
+          id="confirm-password"
+          placeholder="Confirm password"
+          required
+        />
+
+        <label for="new-role">Select Role</label>
+        <select id="new-role" required>
+          <option value="" disabled selected>Choose Role</option>
+          <option value="doctor">Doctor</option>
+          <option value="technician">Technician</option>
+          <option value="transport">Transport Staff</option>
+        </select>
+
+        <button type="submit"><a href="1home.html">Sign Up</a>/button>
 
         <p class="note">
-          Don’t have an account?
-          <a href="signup.html" class="toggle-link">Sign Up</a>
+          Already have an account?
+          <a href="2login.html" class="toggle-link">Login</a>
         </p>
       </form>
 
@@ -153,30 +187,45 @@
       const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVibmZ3YnV1c3hzdGJ5cWRnemttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3OTkwNTQsImV4cCI6MjA3ODM3NTA1NH0.5AfmKXRSjd3VNenizvdzN-Y-UgCpHQakDCRfgCOFhJA";
       const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      const loginForm = document.getElementById("login-form");
+      const signupForm = document.getElementById("signup-form");
 
-      loginForm.addEventListener("submit", async (e) => {
+      signupForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const email = document.getElementById("login-email").value.trim();
-        const password = document.getElementById("login-password").value;
+        const name = document.getElementById("new-name").value.trim();
+        const hospitalId = document
+          .getElementById("new-hospital-id")
+          .value.trim();
+        const email = document.getElementById("new-email").value.trim();
+        const password = document.getElementById("new-password").value;
+        const confirmPassword =
+          document.getElementById("confirm-password").value;
+        const role = document.getElementById("new-role").value;
 
-        const { data, error } = await sb.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          console.error("Login error:", error);
-          alert(error.message);
+        if (password !== confirmPassword) {
+          alert("Passwords do not match!");
           return;
         }
 
-        console.log("Login success:", data);
-        alert("✅ Login successful!");
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: "http://127.0.0.1:5500/login.html",
+            data: { name, hospitalId, role },
+          },
+        });
 
-        // redirect to dashboard after login
-        window.location.href = "dashboard.html";
+        if (error) {
+          console.error("Signup error:", error);
+          alert(error.message);
+        } else {
+          console.log("Signup data:", data);
+          alert(
+            "✅ Sign-up successful! Please check your email to verify your account before logging in."
+          );
+          signupForm.reset();
+        }
       });
     </script>
   </body>

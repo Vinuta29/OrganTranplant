@@ -3,11 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prayog | Secure Access</title>
+    <title>Prayog | Secure Access - Login</title>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
       * {
         margin: 0;
-        padding: 0;
+        padding: 0 ;
         box-sizing: border-box;
         font-family: "Poppins", sans-serif;
       }
@@ -54,8 +58,7 @@
         margin-top: 15px;
       }
 
-      input,
-      select {
+      input {
         width: 100%;
         padding: 10px;
         border-radius: 8px;
@@ -65,8 +68,7 @@
         font-size: 14px;
       }
 
-      input:focus,
-      select:focus {
+      input:focus {
         outline: none;
         border-color: #29c7ac;
       }
@@ -105,118 +107,78 @@
         color: #29c7ac;
         cursor: pointer;
         font-weight: 500;
+        text-decoration: none;
       }
     </style>
-    <script>
-      function toggleForm() {
-        const loginForm = document.getElementById("login-form");
-        const signupForm = document.getElementById("signup-form");
-        loginForm.style.display =
-          loginForm.style.display === "none" ? "block" : "none";
-        signupForm.style.display =
-          signupForm.style.display === "none" ? "block" : "none";
-      }
-    </script>
   </head>
+
   <body>
+    
     <div class="login-container">
-      <div class="icon">🛡️</div>
-      <h1>Welcome to Prayog</h1>
-      <p>AI-Driven Organ Viability Dashboard</p>
+      <div class="icon">🔐</div>
+      <h1>Welcome Back</h1>
+      <p>Sign in to continue to Prayog</p>
 
-      <!-- Login Form -->
       <form id="login-form">
-        <label for="hospital-id">Hospital ID</label>
-        <input
-          type="text"
-          id="hospital-id"
-          placeholder="Enter your Hospital ID"
-          required
-        />
-
-        <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          placeholder="Enter password"
-          required
-        />
-
-        <label for="role">Select Role</label>
-        <select id="role" required>
-          <option value="" disabled selected>Choose Role</option>
-          <option value="doctor">Doctor</option>
-          <option value="technician">Technician</option>
-          <option value="transport">Transport Staff</option>
-        </select>
-
-        <button type="submit">Login</button>
-        <p class="note">
-          Don't have an account?
-          <span class="toggle-link" onclick="toggleForm()">Sign up</span>
-        </p>
-      </form>
-
-      <!-- Signup Form -->
-      <form id="signup-form" style="display: none">
-        <label for="new-name">Full Name</label>
-        <input
-          type="text"
-          id="new-name"
-          placeholder="Enter your full name"
-          required
-        />
-
-        <label for="new-hospital-id">Hospital ID</label>
-        <input
-          type="text"
-          id="new-hospital-id"
-          placeholder="Create your Hospital ID"
-          required
-        />
-
-        <label for="new-email">Email</label>
+        <label for="login-email">Email</label>
         <input
           type="email"
-          id="new-email"
-          placeholder="Enter your official email"
+          id="login-email"
+          placeholder="Enter your registered email"
           required
         />
 
-        <label for="new-password">Password</label>
+        <label for="login-password">Password</label>
         <input
           type="password"
-          id="new-password"
-          placeholder="Create password"
+          id="login-password"
+          placeholder="Enter your password"
           required
         />
 
-        <label for="confirm-password">Confirm Password</label>
-        <input
-          type="password"
-          id="confirm-password"
-          placeholder="Confirm password"
-          required
-        />
+        <button type="submit">Login</button>
 
-        <label for="new-role">Select Role</label>
-        <select id="new-role" required>
-          <option value="" disabled selected>Choose Role</option>
-          <option value="doctor">Doctor</option>
-          <option value="technician">Technician</option>
-          <option value="transport">Transport Staff</option>
-        </select>
-
-        <button type="submit">Sign Up</button>
         <p class="note">
-          Already have an account?
-          <span class="toggle-link" onclick="toggleForm()">
-            <a href="home.html">Login</a></span
-          >
+          Don’t have an account?
+          <a href="signup.html" class="toggle-link">Sign Up</a>
         </p>
       </form>
 
       <p class="note">Secure access via hospital intranet only.</p>
     </div>
+
+    <script>
+      // --- Initialize Supabase client ---
+      const { createClient } = supabase;
+      const SUPABASE_URL = "https://ebnfwbuusxstbyqdgzkm.supabase.co";
+      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVibmZ3YnV1c3hzdGJ5cWRnemttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3OTkwNTQsImV4cCI6MjA3ODM3NTA1NH0.5AfmKXRSjd3VNenizvdzN-Y-UgCpHQakDCRfgCOFhJA";
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const loginForm = document.getElementById("login-form");
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("login-email").value.trim();
+        const password = document.getElementById("login-password").value;
+
+        const { data, error } = await sb.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          console.error("Login error:", error);
+          alert(error.message);
+          return;
+        }
+
+        console.log("Login success:", data);
+        alert("✅ Login successful!");
+
+        // redirect to dashboard after login
+        window.location.href = "dashboard.html";
+      });
+    </script>
   </body>
 </html>

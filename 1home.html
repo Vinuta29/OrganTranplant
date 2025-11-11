@@ -15,9 +15,9 @@
     <style>
       :root {
         --color-dark-bg: #0a0c10;
-        --color-bg: #111827; /* Dark Blue/Gray */
-        --color-primary: #00f5d4; /* Bright Mint/Teal */
-        --color-secondary: #00b4d8; /* Bright Blue */
+        --color-bg: #111827;
+        --color-primary: #00f5d4;
+        --color-secondary: #00b4d8;
         --color-text: #e0e0e0;
         --color-text-darker: #a0a0a0;
         --color-border: #2a334b;
@@ -87,23 +87,17 @@
         color: var(--color-text);
       }
 
-      /* ---------------------------------
-        2. Header / Navigation
-        ---------------------------------
-        */
+      /* Header / Nav */
       .header {
         position: sticky;
         top: 0;
         width: 100%;
         padding: 1.5rem 0;
         z-index: 1000;
-        /* Modern "glassmorphism" effect */
         background: rgba(17, 24, 39, 0.8);
         backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px); /* For Safari */
         border-bottom: 1px solid var(--color-border);
-        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
-          "Helvetica Neue", sans-serif;
       }
 
       .nav {
@@ -115,51 +109,154 @@
       .logo {
         font-size: 1.5rem;
         font-weight: 800;
-        color: var(--color-primary);
+        color: var(--color-text-darker);
       }
 
       .logo:hover {
-        color: white;
+        color: var(--color-text);
+      }
+      
+      /* NAV LINK GLASSMORPHISM STYLES (already applied) */
+      .nav-links-wrapper {
+        display: flex;
+        gap: 1.5rem;
       }
 
+      .nav-link-glass {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        transition: all 0.3s ease;
+      }
+
+      .nav-link-glass:hover {
+        color: var(--color-primary);
+        background: rgba(0, 245, 212, 0.2);
+        border: 1px solid var(--color-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 12px rgba(0, 245, 212, 0.3);
+      }
+      
+      .nav a {
+        color: var(--color-primary);
+      }
+      .nav-link-glass {
+        color: var(--color-text);
+      }
+      /* END OF NAV STYLES */
+
+
+      /* Hero Section - MODIFIED TO POSITION CONTENT UPWARD */
       #hero {
-        min-height: 100vh;
+        /* Set a minimum height, but keep it shorter than 100vh for breathing room */
+        min-height: 80vh; 
         display: flex;
-        align-items: center;
+        /* THIS IS THE KEY CHANGE: Align content to the top (flex-start) */
+        align-items: flex-start; 
         justify-content: center;
         text-align: center;
-        padding-top: 80px; /* Offset for sticky header */
+        /* Add padding to push content down slightly from the fixed nav */
+        padding-top: 6rem; 
+        padding-bottom: 4rem; /* Ensure content isn't flush with the bottom */
         position: relative;
         overflow: hidden;
         background-color: var(--color-dark-bg);
       }
 
+      .hero-video-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        filter: brightness(0.6) grayscale(0.1);
+      }
+
       .hero-content {
         position: relative;
         z-index: 2;
+        /* Added margin-top to push the content down further if needed, 
+           but padding-top on #hero should handle the initial spacing.
+           Using margin-top: 0 is fine here to reset any default block margins. */
+        margin-top: 0; 
       }
 
       .hero-content .subtitle {
         font-size: clamp(1.1rem, 2.5vw, 1.25rem);
-        color: var(--color-text-darker);
+        color: var(--color-text);
         max-width: 700px;
         margin: 1.5rem auto 2.5rem;
       }
 
+      /* 🌟 ENHANCED TITLE STYLE WITH GLOW & NEW GLASSMORPHISM 🌟 */
+      .gradient-text {
+        color: white;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 1) 0%,
+          rgba(255, 255, 255, 0.4) 50%,
+          rgba(255, 255, 255, 1) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+          0 0 20px rgba(0, 245, 212, 0.2);
+        transition: text-shadow 0.4s ease-in-out, background-color 0.4s ease, border 0.4s ease; /* Added background and border transitions */
+        
+        /* New Glassmorphism for the Title Background */
+        display: inline-block; /* Essential for padding and background to work */
+        padding: 0.5rem 1.5rem; /* Add some padding around the text */
+        border-radius: 12px; /* Rounded corners for the glass effect */
+        background-color: rgba(255, 255, 255, 0.08); /* Slightly visible background */
+        backdrop-filter: blur(8px); /* Blur effect */
+        -webkit-backdrop-filter: blur(8px); /* Safari support */
+        border: 1px solid rgba(255, 255, 255, 0.15); /* Light border */
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+      }
+      
+      /* Hover Effect for H1 */
+      .hero-content h1:hover {
+        cursor: pointer;
+        text-shadow: 0 0 15px var(--color-primary),
+          0 0 30px var(--color-primary),
+          0 0 45px rgba(255, 255, 255, 0.8);
+        background-color: rgba(0, 245, 212, 0.15); /* Primary tint on hover */
+        border: 1px solid var(--color-primary); /* Primary border on hover */
+        box-shadow: 0 8px 20px rgba(0, 245, 212, 0.4); /* Stronger shadow on hover */
+      }
+      /* END OF ENHANCED TITLE STYLE */
+
+      /* Updated Buttons */
       .cta-buttons {
         display: flex;
         justify-content: center;
-        gap: 1rem;
+        align-items: center;
+        gap: 1.5rem;
         flex-wrap: wrap;
+        margin-top: 1.5rem;
       }
 
       .btn {
         display: inline-block;
-        padding: 0.75rem 1.75rem;
-        border-radius: 8px;
-        font-weight: 500;
-        font-size: 1rem;
+        padding: 0.85rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.05rem;
         transition: all 0.3s ease;
+        text-align: center;
+        min-width: 150px;
       }
 
       .btn-primary {
@@ -183,85 +280,99 @@
         background: var(--color-primary);
         color: var(--color-dark-bg);
       }
-      .hero-background-animation {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 100%;
-        height: 100%;
-        max-width: 1200px;
-        max-height: 1200px;
-        transform: translate(-50%, -50%);
-        z-index: 1;
+
+      #page2 {
+        background-color: black;
+        padding-top: 80px;
+        padding-bottom: 40px;
+        min-height: auto;
       }
 
-      .hero-background-animation::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: radial-gradient(
-          ellipse at center,
-          var(--color-secondary) 0%,
-          transparent 60%
-        );
-        opacity: 0.15;
-        animation: pulse 6s infinite ease-in-out;
+      #page2 .container { 
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        perspective: 1000px;
       }
 
-      /* A faint pulse to simulate a heartbeat or cellular activity */
-      @keyframes pulse {
-        0% {
-          transform: scale(0.8);
-          opacity: 0.1;
-        }
-        50% {
-          transform: scale(1.1);
-          opacity: 0.25;
-        }
-        100% {
-          transform: scale(0.8);
-          opacity: 0.1;
-        }
-      }
-
-      #highlights {
-        background-color: var(--color-bg);
-      }
-
-      .highlight-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-      }
-
-      .highlight-card {
-        background: var(--color-dark-bg);
-        padding: 2rem;
+      .card {
+        background-color: #111;
         border-radius: 12px;
-        border: 1px solid var(--color-border);
-        text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        width: 300px;
+        cursor: pointer;
+        border: 1px solid #222;
+        transition: transform 0.5s ease, box-shadow 0.5s ease;
+        transform-style: preserve-3d;
       }
 
-      .highlight-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 245, 212, 0.1);
+      .card:hover {
+        transform: translateY(-20px) rotateX(8deg) rotateY(5deg) scale(1.07);
+        box-shadow: 0 25px 50px rgba(0, 255, 242, 0.5);
       }
 
-      .highlight-card .icon {
-        font-size: 2.5rem;
-        display: block;
-        margin-bottom: 1rem;
+      .card-img {
+        height: 180px;
+        background-size: cover;
+        background-position: center;
+        filter: grayscale(100%) brightness(0.7);
+        transition: filter 0.5s ease, transform 0.5s ease;
       }
 
-      .highlight-card h3 {
-        font-size: 1.1rem;
-        font-weight: 500;
-        color: white;
+      .card:hover .card-img {
+        filter: grayscale(0%) brightness(1);
+        transform: scale(1.1) rotateY(5deg) rotateX(3deg);
       }
+
+      .card-content {
+        padding: 20px;
+      }
+
+      .card-content h2 {
+        margin-bottom: 10px;
+        font-size: 20px;
+        color: #00ffff;
+        transition: color 0.3s ease;
+      }
+
+      .card:hover .card-content h2 {
+        color: #ff0;
+      }
+
+      .card-content p {
+        margin-bottom: 15px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #ccc;
+        transition: color 0.3s ease;
+      }
+
+      .card:hover .card-content p {
+        color: #0ff;
+      }
+
+      .fintech-img {
+        background-image: url("./pic1.jpg");
+      }
+      .smart-img {
+        background-image: url("./pic2.jpg");
+      }
+      .health-img {
+        background-image: url("./pic3.jpg");
+      }
+      .biotech-img {
+        background-image: url("./pic4.jpg");
+      }
+
+      @media (max-width: 900px) {
+        #page2 .container { 
+          flex-direction: column;
+          align-items: center;
+          gap: 20px;
+        }
+      }
+
       #about {
         background-color: var(--color-dark-bg);
         border-top: 1px solid var(--color-border);
@@ -283,7 +394,7 @@
       }
 
       .about-content .text-block p:first-child {
-        color: var(--color-text); /* Make the first p more prominent */
+        color: var(--color-text);
         font-size: 1.15rem;
       }
 
@@ -342,60 +453,29 @@
         transform: translateY(0);
       }
 
-      /* Staggered delays for a smoother feel */
-      .hero-content h1 {
-        transition-delay: 100ms;
-      }
-      .hero-content .subtitle {
-        transition-delay: 200ms;
-      }
-      .hero-content .cta-buttons {
-        transition-delay: 300ms;
-      }
-
-      .highlight-card:nth-child(1) {
-        transition-delay: 100ms;
-      }
-      .highlight-card:nth-child(2) {
-        transition-delay: 200ms;
-      }
-      .highlight-card:nth-child(3) {
-        transition-delay: 300ms;
-      }
-      .highlight-card:nth-child(4) {
-        transition-delay: 400ms;
-      }
-
-      .about-content .text-block:nth-child(1) {
-        transition-delay: 100ms;
-      }
-      .about-content .text-block:nth-child(2) {
-        transition-delay: 200ms;
-      }
-
-      /* Responsive adjustments */
       @media (max-width: 768px) {
         section {
           padding: 4rem 0;
         }
 
-        .container {
-          padding: 0 1rem;
+        .nav-links-wrapper {
+          flex-direction: column;
+          gap: 0.5rem;
         }
-
-        #hero {
-          min-height: 90vh;
+        
+        .nav-link-glass {
+          padding: 0.4rem 0.8rem;
+          text-align: center;
         }
 
         .cta-buttons {
           flex-direction: column;
-          align-items: center;
+          gap: 1rem;
         }
 
         .btn {
           width: 100%;
           max-width: 300px;
-          text-align: center;
         }
 
         .about-content {
@@ -403,35 +483,31 @@
           gap: 2rem;
           text-align: center;
         }
-
-        .footer-contact ul {
-          flex-direction: column;
-          gap: 0.5rem;
-        }
       }
     </style>
   </head>
+
   <body>
     <header class="header">
       <nav class="container nav">
-        <a href="#" class="logo" style="font-size: x-large">Prayog</a>
-        <a style="display: flex; align-items: right">Home</a>
-        <a style="display: flex; align-items: right">About</a>
-        <a style="display: flex; align-items: right">Features</a>
-        <a
-          href="login.html"
-          style="font: bold; display: flex; align-items: right"
-          >Login/Signup</a
-        >
+        <a href="#" class="logo">Prayog</a>
+        <div class="nav-links-wrapper">
+          <a href="#" class="nav-link-glass">Home</a>
+          <a href="#about" class="nav-link-glass">About</a>
+          <a href="#highlights" class="nav-link-glass">Features</a>
+          <a href="2login.html" class="nav-link-glass">Login/Signup</a>
+        </div>
       </nav>
     </header>
 
     <main>
       <section id="hero">
-        <div class="hero-background-animation"></div>
+        <video class="hero-video-background" autoplay loop muted playsinline>
+          <source src="organ-bg.mp4" type="video/mp4" />
+        </video>
 
         <div class="container hero-content">
-          <h1 class="animate-in">
+          <h1 class="animate-in gradient-text">
             Prayog: AI-Driven Vision-Based Organ Viability System
           </h1>
           <p class="subtitle animate-in">
@@ -439,34 +515,43 @@
             viability scoring.
           </p>
           <div class="cta-buttons animate-in">
-            <a href="1organcase.html" class="btn btn-primary">Explore</a>
-            <a href="#" class="btn btn-secondary">Try the Demo</a>
+            <a href="2login.html" class="btn btn-primary">Explore</a>
+            <a href="34caseEntry.html" class="btn btn-secondary">Try the Demo</a>
           </div>
         </div>
       </section>
 
-      <section id="highlights">
+      <div id="page2">
         <div class="container">
-          <div class="highlight-grid">
-            <div class="highlight-card animate-in">
-              <span class="icon">🧠</span>
-              <h3>AI-Powered Organ Monitoring</h3>
+          <div class="card">
+            <div class="card-img fintech-img"></div>
+            <div class="card-content">
+              <p>AI-Powered Organ Monitoring</p>
             </div>
-            <div class="highlight-card animate-in">
-              <span class="icon">🫀</span>
-              <h3>Real-Time Viability Estimation</h3>
+          </div>
+
+          <div class="card">
+            <div class="card-img smart-img"></div>
+            <div class="card-content">
+              <p>Real-Time Viability Estimation</p>
             </div>
-            <div class="highlight-card animate-in">
-              <span class="icon">🖐️</span>
-              <h3>Touch-Free Gesture Control</h3>
+          </div>
+
+          <div class="card">
+            <div class="card-img health-img"></div>
+            <div class="card-content">
+              <p>Touch-Free Gesture Control</p>
             </div>
-            <div class="highlight-card animate-in">
-              <span class="icon">🔬</span>
-              <h3>Biotech Innovation for Life</h3>
+          </div>
+
+          <div class="card">
+            <div class="card-img biotech-img"></div>
+            <div class="card-content">
+              <p>Biotech Innovation for Life</p>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       <section id="about">
         <div class="container">
@@ -510,7 +595,7 @@
               >
             </li>
             <li>
-              <a href="#" target="_blank">🌐 @prayogai(Instagram)</a>
+              <a href="#" target="_blank">🌐 @prayogai (Instagram)</a>
             </li>
           </ul>
         </div>
@@ -525,7 +610,6 @@
         const animatedElements = document.querySelectorAll(".animate-in");
 
         if (!("IntersectionObserver" in window)) {
-          // Fallback for older browsers
           animatedElements.forEach((el) => {
             el.classList.add("is-visible");
           });
@@ -541,9 +625,7 @@
               }
             });
           },
-          {
-            threshold: 0.1, // Trigger when 10% of the element is visible
-          }
+          { threshold: 0.1 }
         );
 
         animatedElements.forEach((el) => {
