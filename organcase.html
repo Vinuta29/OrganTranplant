@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Organ Case Selection - Prayog</title>
+    <style>
+      /* ───────────── Base Layout ───────────── */
+      body {
+        margin: 0;
+        padding: 40px;
+        font-family: "Inter", sans-serif;
+        background: radial-gradient(
+          circle at top left,
+          #0b111a 40%,
+          #05080c 100%
+        );
+        color: #e8f5f3;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .case-panel,
+      .monitor-panel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(41, 199, 172, 0.2);
+        border-radius: 16px;
+        padding: 30px 40px;
+        margin-bottom: 30px;
+        width: 100%;
+        max-width: 700px;
+        backdrop-filter: blur(14px);
+        box-shadow: 0 0 25px rgba(41, 199, 172, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .case-panel:hover,
+      .monitor-panel:hover {
+        box-shadow: 0 0 30px rgba(41, 199, 172, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .section-header {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #29c7ac;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* ───────────── Buttons ───────────── */
+      .btn {
+        background: linear-gradient(135deg, #29c7ac, #38e4c2);
+        color: #0b111a;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(41, 199, 172, 0.4);
+        transition: all 0.25s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 25px rgba(41, 199, 172, 0.7);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* ───────────── Form Elements ───────────── */
+      select,
+      input[type="text"] {
+        width: 100%;
+        max-width: 250px;
+        padding: 10px 14px;
+        margin-top: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(41, 199, 172, 0.3);
+        background: rgba(255, 255, 255, 0.05);
+        color: #e8f5f3;
+        font-size: 15px;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      select:focus,
+      input[type="text"]:focus {
+        border-color: #29c7ac;
+        box-shadow: 0 0 8px rgba(41, 199, 172, 0.6);
+      }
+
+      label,
+      span {
+        font-size: 0.95rem;
+        color: #a3b5b2;
+        font-weight: 600;
+      }
+
+      /* ───────────── Video Panel ───────────── */
+      #videoElement {
+        width: 100%;
+        max-width: 600px;
+        height: 380px;
+        background-color: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(41, 199, 172, 0.3);
+        border-radius: 14px;
+        margin-top: 18px;
+        box-shadow: 0 0 25px rgba(41, 199, 172, 0.15);
+        object-fit: cover;
+      }
+
+      /* ───────────── Animations ───────────── */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .monitor-panel {
+        animation: fadeIn 0.4s ease forwards;
+      }
+
+      /* ───────────── Responsiveness ───────────── */
+      @media (max-width: 768px) {
+        body {
+          padding: 20px;
+        }
+        .case-panel,
+        .monitor-panel {
+          padding: 20px;
+        }
+        #videoElement {
+          height: 280px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="case-panel">
+      <div class="section-header">2️⃣ Organ Case Selection</div>
+
+      <button class="btn" onclick="showNewEntry()">➕ New Organ Entry</button>
+
+      <form id="newEntryForm" style="display: none; margin-top: 15px">
+        <label for="organType">Organ type:</label><br />
+        <select id="organType" name="organType" required>
+          <option value="">Select organ</option>
+          <option value="heart">❤️ Heart</option>
+          <option value="liver">🫀 Liver</option>
+          <option value="kidney">🫘 Kidney</option></select
+        ><br />
+        <input class="btn" type="submit" value="Create Case" />
+      </form>
+
+      <div style="margin: 25px 0">
+        <span>Select existing case:</span><br />
+        <select id="existingCases">
+          <option value="">Select Case</option>
+          <option value="Heart in Transit #2025_07">
+            Heart in Transit #2025_07
+          </option>
+        </select>
+        <button class="btn" onclick="openExistingCase()">Open Case</button>
+      </div>
+    </div>
+
+    <div class="monitor-panel" id="monitorPanel" style="display: none">
+      <div class="section-header" id="monitorTitle"></div>
+      <div>✅ Monitoring window opened and live camera feed linked.</div>
+      <video autoplay="true" id="videoElement"></video>
+    </div>
+
+    <script>
+      function showNewEntry() {
+        document.getElementById("newEntryForm").style.display = "block";
+      }
+
+      document.getElementById("newEntryForm").onsubmit = function (e) {
+        e.preventDefault();
+        let organType = document.getElementById("organType").value;
+        if (organType) {
+          openMonitor(
+            "New " +
+              organType.charAt(0).toUpperCase() +
+              organType.slice(1) +
+              " Case"
+          );
+        }
+      };
+
+      function openExistingCase() {
+        let caseName = document.getElementById("existingCases").value;
+        if (caseName) {
+          openMonitor(caseName);
+        }
+      }
+
+      function openMonitor(title) {
+        document.getElementById("monitorTitle").textContent = title;
+        document.getElementById("monitorPanel").style.display = "block";
+        startVideo();
+      }
+
+      function startVideo() {
+        var video = document.querySelector("#videoElement");
+        if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then(function (stream) {
+              video.srcObject = stream;
+            })
+            .catch(function (error) {
+              alert("Error accessing camera");
+            });
+        }
+      }
+    </script>
+  </body>
+</html>

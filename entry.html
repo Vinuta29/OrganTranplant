@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧠 Organ Case Selection</title>
+
+    <!-- Remix Icon CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: radial-gradient(circle at top left, #0d0d0d, #000);
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-attachment: fixed;
+      }
+
+      .container {
+        background: rgba(30, 30, 30, 0.6);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 40px;
+        width: 400px;
+        text-align: center;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      /* .container:hover {
+        box-shadow: 0 0 35px rgba(0, 255, 255, 0.2);
+      } */
+
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 10px;
+        color: #b7f0f0;
+      }
+
+      p {
+        font-size: 0.9rem;
+        color: #aaa;
+        margin-bottom: 25px;
+      }
+
+      .btn {
+        display: block;
+        background: linear-gradient(90deg, white);
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        width: 100%;
+        color: #000;
+        font-weight: 600;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .btn:hover {
+        background: linear-gradient(90deg, white);
+        transform: translateY(-2px);
+      }
+
+      .form-section {
+        margin-top: 20px;
+        text-align: left;
+      }
+
+      label {
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      select,
+      input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        margin-bottom: 15px;
+        outline: none;
+      }
+
+      option {
+        background: #222;
+      }
+
+      .existing-cases {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 10px;
+        margin-top: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .case-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        transition: 0.3s;
+        color: #fff;
+      }
+
+      .case-item:hover {
+        background: rgba(0, 255, 255, 0.1);
+      }
+
+      .case-item i {
+        font-size: 1.3rem;
+        color: #f2f2f2;
+      }
+
+      footer {
+        margin-top: 20px;
+        font-size: 0.8rem;
+        color: #555;
+      }
+
+      /* Custom scrollbar */
+      .existing-cases::-webkit-scrollbar {
+        width: 6px;
+      }
+      .existing-cases::-webkit-scrollbar-thumb {
+        background: rgba(0, 255, 255, 0.4);
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Organ Case Selection</h1>
+      <p>Select or create a new organ monitoring case.</p>
+
+      <button class="btn" onclick="toggleNewEntry()">+ New Organ Entry</button>
+
+      <div id="newEntry" class="form-section" style="display: none">
+        <label for="organType">Organ Type</label>
+        <select id="organType">
+          <option value="">-- Select Organ --</option>
+          <option value="Heart">Heart</option>
+          <option value="Liver">Liver</option>
+          <option value="Kidney">Kidney</option>
+        </select>
+        <input
+          type="text"
+          id="caseID"
+          placeholder="Enter Case ID (e.g., Heart_2025_07)"
+        />
+        <button class="btn" onclick="createCase()">Create Case</button>
+      </div>
+
+      <div class="form-section">
+        <label>Existing Cases</label>
+        <div id="existingCases" class="existing-cases">
+          <div
+            class="case-item"
+            onclick="openCase('Heart in Transit #2025_07')"
+          >
+            <i class="ri-heart-pulse-line"></i> Heart in Transit #2025_07
+          </div>
+
+          <div class="case-item" onclick="openCase('Liver Monitor #2025_05')">
+            <i class="ri-computer-line"></i> Liver Monitor #2025_05
+          </div>
+          <div
+            class="case-item"
+            onclick="openCase('Kidney Preservation #2025_03')"
+          >
+            <i class="ri-drop-line"></i> Kidney Preservation #2025_03
+          </div>
+        </div>
+      </div>
+
+      <footer>© 2025 Prayog</footer>
+    </div>
+    <!-- Live AI Organ Detection Embed -->
+    <div style="margin-top: 50px; width: 100%; text-align: center">
+      <h2 style="color: #b7f0f0; font-weight: 600">
+         Live Organ Viability Analysis
+      </h2>
+      <p style="color: #aaa">Real-time AI detection and scoring interface</p>
+      <iframe
+        src=" http://172.16.20.150:8501"
+        width="100%"
+        height="800"
+        style="border: none; border-radius: 12px"
+      >
+      </iframe>
+    </div>
+
+    <script>
+      function toggleNewEntry() {
+        const section = document.getElementById("newEntry");
+        section.style.display =
+          section.style.display === "none" ? "block" : "none";
+      }
+
+      function createCase() {
+        const organ = document.getElementById("organType").value;
+        const caseID = document.getElementById("caseID").value.trim();
+        const existingCases = document.getElementById("existingCases");
+
+        if (organ && caseID) {
+          // Choose icon based on organ
+          let iconClass = "ri-flask-line";
+          if (organ === "Heart") iconClass = "ri-heart-pulse-line";
+          else if (organ === "Liver") iconClass = "ri-computer-line";
+          else if (organ === "Kidney") iconClass = "ri-drop-line";
+
+          // Create new div
+          const newDiv = document.createElement("div");
+          newDiv.className = "case-item";
+          newDiv.innerHTML = `<i class="${iconClass}"></i> ${organ} Case #${caseID}`;
+          newDiv.onclick = () => openCase(`${organ} Case #${caseID}`);
+
+          // Append to list
+          existingCases.appendChild(newDiv);
+
+          // Reset fields
+          document.getElementById("organType").value = "";
+          document.getElementById("caseID").value = "";
+
+          alert(`✅ New monitoring case added:\n${organ} Case #${caseID}`);
+        } else {
+          alert("⚠️ Please select an organ and enter a case ID.");
+        }
+      }
+
+      function openCase(name) {
+        alert(
+          `🔍 Opening monitoring window for ${name}...\n(Linking live camera feed if available)`
+        );
+      }
+    </script>
+  </body>
+</html>

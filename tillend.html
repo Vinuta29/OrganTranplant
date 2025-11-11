@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prayog - Heart Monitoring System</title>
+
+    <!-- Remix Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: radial-gradient(circle at top left, #0a0a0a, #000);
+        color: #fff;
+        min-height: 100vh;
+        padding: 20px 40px;
+        background-attachment: fixed;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      header h1 {
+        font-size: 1.8rem;
+        color: #fffefe;
+      }
+
+      header p {
+        color: #aaa;
+        font-size: 0.9rem;
+      }
+
+      /* Navigation Bar */
+      nav {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+      }
+
+      nav button {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        padding: 10px 25px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+      }
+
+      nav button.active {
+        background: rgba(255, 80, 80, 0.2);
+        border-color: #ff5555;
+        /* box-shadow: 0 0 15px rgba(255, 80, 80, 0.2); */
+      }
+
+      nav button:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      /* Cards / Sections */
+      .section {
+        display: none;
+        max-width: 1200px;
+        margin: auto;
+        animation: fadeIn 0.6s ease-in-out;
+      }
+
+      .section.active {
+        display: block;
+      }
+
+      .card {
+        background: rgba(30, 30, 30, 0.5);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 0 25px rgba(255, 80, 80, 0.08);
+      }
+
+      .card h2 {
+        color: #ff9999;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+      }
+
+      .card p,
+      .card li {
+        color: #ccc;
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      ul {
+        margin-left: 20px;
+      }
+
+      .btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        padding: 10px 20px;
+        color: #fff;
+        cursor: pointer;
+        transition: 0.3s;
+        display: inline-block;
+        margin-top: 10px;
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 60px;
+        color: #555;
+        font-size: 0.8rem;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        nav {
+          gap: 10px;
+        }
+        nav button {
+          padding: 8px 14px;
+          font-size: 0.85rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Prayog - Heart Monitoring System</h1>
+      <p>Real-Time AI Viability • Gesture Control • Transparent Interface</p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav>
+      <button class="active" onclick="showSection('dashboard')">
+        📊 Dashboard
+      </button>
+      <button onclick="showSection('alert')">⚠ Alert & Intervention</button>
+      <button onclick="showSection('report')">🩺 Report Generation</button>
+      <button onclick="showSection('end')">🔚 End Session</button>
+    </nav>
+
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard" class="section active">
+      <div class="card">
+        <h2>📊 Heart Viability Overview</h2>
+        <p>
+          Displays the current heart condition, viability score, and trend over
+          time. Doctors can track organ health during transport or preparation.
+        </p>
+        <ul>
+          <li>Viability Score: <b>92%</b> (Healthy)</li>
+          <li>Condition: Stable</li>
+          <li>Last Updated: <span id="time"></span></li>
+        </ul>
+        <button class="btn" onclick="refreshTime()">
+          <i class="ri-refresh-line"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- ALERT & INTERVENTION SECTION -->
+    <div id="alert" class="section">
+      <div class="card">
+        <h2>⚠ Real-Time Alerts</h2>
+        <p>
+          System auto-detects viability drops and notifies doctors and transport
+          teams instantly.
+        </p>
+        <ul>
+          <li>09:45 AM — Viability drop detected (52%) ⚠</li>
+          <li>09:40 AM — Oxygen fluctuation detected</li>
+        </ul>
+        <button class="btn">
+          <i class="ri-alarm-warning-line"></i> Acknowledge
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>🧩 Suggested Interventions</h2>
+        <ul>
+          <li>Increase cooling flow rate.</li>
+          <li>Check perfusion integrity.</li>
+          <li>Ensure proper oxygenation in chamber.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- REPORT GENERATION SECTION -->
+    <div id="report" class="section">
+      <div class="card">
+        <h2>🩺 Report Generation</h2>
+        <p>
+          Automatically generates a full report with AI analysis, alerts, and
+          condition trends.
+        </p>
+        <ul>
+          <li>Organ ID: <b>Heart_2025_09</b></li>
+          <li>Average Viability: 87%</li>
+          <li>Alert Summary: 3 alerts in last 2 hours</li>
+          <li>Condition: Mild Hypoxia</li>
+        </ul>
+        <button class="btn">
+          <i class="ri-file-chart-line"></i> Generate Report
+        </button>
+        <button class="btn">
+          <i class="ri-download-2-line"></i> Download PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- END SESSION SECTION -->
+    <div id="end" class="section">
+      <div class="card">
+        <h2>🔚 End Session</h2>
+        <p>
+          Ends current heart monitoring safely and saves all session data and
+          reports.
+        </p>
+        <ul>
+          <li>Gesture: “Palm Down” → Stop detection</li>
+          <li>Click “End Case Monitoring” to finalize session</li>
+        </ul>
+        <button class="btn" onclick="endSession()">
+          <i class="ri-stop-circle-line"></i> End Case Monitoring
+        </button>
+      </div>
+    </div>
+
+    <footer>© 2025 Prayog</footer>
+
+    <script>
+      function showSection(id) {
+        document
+          .querySelectorAll(".section")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        document
+          .querySelectorAll("nav button")
+          .forEach((b) => b.classList.remove("active"));
+        event.target.classList.add("active");
+      }
+
+      function refreshTime() {
+        document.getElementById("time").textContent =
+          new Date().toLocaleTimeString();
+      }
+
+      function endSession() {
+        alert("Session Ended. All data and reports saved to cloud.");
+      }
+
+      refreshTime();
+    </script>
+  </body>
+</html>

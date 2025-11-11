@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organ Transplant Monitoring System</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000000;
+            color: #f3f4f6;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            border-bottom: 1px solid #374151;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-left p {
+            color: #9ca3af;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .organ-id {
+            text-align: right;
+        }
+
+        .organ-id-label {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .organ-id-value {
+            font-size: 1.125rem;
+            font-family: 'Courier New', monospace;
+            color: #f59e0b;
+        }
+
+        .live-indicator {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #10b981;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .live-text {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid #374151;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            text-transform: capitalize;
+        }
+
+        .nav-tab:hover {
+            color: #f3f4f6;
+        }
+
+        .nav-tab.active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #374151;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-label {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .card-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .card-value-medium {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #374151;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .chart-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: #374151;
+            color: #f3f4f6;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-primary {
+            background: #f59e0b;
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 1.125rem;
+            padding: 1rem 2rem;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn:disabled {
+            background: #374151;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        /* Alerts */
+        .alert-item {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .alert-warning {
+            background: rgba(217, 119, 6, 0.1);
+            border: 1px solid #f59e0b;
+        }
+
+        .alert-critical {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid #dc2626;
+        }
+
+        .alert-acknowledged {
+            background: rgba(75, 85, 99, 0.3);
+            border: 1px solid #4b5563;
+        }
+
+        .alert-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .alert-message {
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .alert-time {
+            font-size: 0.875rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Storage Status */
+        .storage-item {
+            padding: 1rem;
+            background: rgba(75, 85, 99, 0.3);
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .storage-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .storage-title {
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .storage-subtitle {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-connected {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .status-synced {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(75, 85, 99, 0.3);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item-label {
+            font-size: 0.875rem;
+            color: #9ca3af;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-item-value {
+            color: #ffffff;
+        }
+
+        .info-box {
+            padding: 1rem;
+            background: rgba(75, 85, 99, 0.3);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .end-session-container {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #9ca3af;
+            padding: 3rem;
+        }
+
+        #chart {
+            height: 350px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>Organ Transplant Monitoring System</h1>
+                <p>Real-time viability tracking & alert management</p>
+            </div>
+            <div class="header-right">
+                <div class="organ-id">
+                    <div class="organ-id-label">Organ ID</div>
+                    <div class="organ-id-value" id="organId">ORG-2025-1847</div>
+                </div>
+                <div class="live-indicator" id="liveIndicator">
+                    <div class="pulse-dot"></div>
+                    <span class="live-text">LIVE</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="switchTab('alerts')">Alerts</button>
+            <button class="nav-tab" onclick="switchTab('reports')">Reports</button>
+            <button class="nav-tab" onclick="switchTab('data')">Data</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <!-- Status Cards -->
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-label">Current Viability</span>
+                        <svg class="card-icon" fill="none" stroke="#f59e0b" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <div class="card-value" id="currentViability">92.0%</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-label">Organ Type</span>
+                        <svg class="card-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div class="card-value-medium" id="organType">Heart</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-label">Active Alerts</span>
+                        <svg class="card-icon" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="card-value" id="activeAlerts" style="color: #ef4444;">0</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-label">Monitoring Time</span>
+                        <svg class="card-icon" fill="none" stroke="#a855f7" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="card-value-medium" id="monitoringTime">0 min</div>
+                </div>
+            </div>
+
+            <!-- Viability Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2 class="chart-title">Viability Trend</h2>
+                    <div class="chart-buttons">
+                        <button class="btn btn-secondary" onclick="exportCSV()">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            Export CSV
+                        </button>
+                        <button class="btn btn-primary" onclick="generateReport()">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+                <div id="chart"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #10b981;"></div>
+                        <span style="color: #9ca3af;">Optimal (≥90%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #f59e0b;"></div>
+                        <span style="color: #9ca3af;">Caution (80-89%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #ef4444;"></div>
+                        <span style="color: #9ca3af;">Critical (&lt;80%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Alerts -->
+            <div class="chart-container">
+                <h2 class="chart-title" style="margin-bottom: 1rem;">Recent Alerts</h2>
+                <div id="recentAlerts"></div>
+            </div>
+        </div>
+
+        <!-- Alerts Tab -->
+        <div id="alerts" class="tab-content">
+            <div class="chart-container">
+                <h2 class="chart-title" style="margin-bottom: 1rem;">Alert Management</h2>
+                <div id="allAlerts"></div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <div class="chart-container">
+                <h2 class="chart-title" style="margin-bottom: 1.5rem;">Report Generation</h2>
+                
+                <div class="info-grid">
+                    <div>
+                        <div class="info-item-label">Organ ID</div>
+                        <div class="info-item-value" style="font-family: 'Courier New', monospace;">ORG-2025-1847</div>
+                    </div>
+                    <div>
+                        <div class="info-item-label">Organ Type</div>
+                        <div class="info-item-value">Kidney</div>
+                    </div>
+                    <div>
+                        <div class="info-item-label">Donor Age</div>
+                        <div class="info-item-value">42 years</div>
+                    </div>
+                    <div>
+                        <div class="info-item-label">Monitoring Start</div>
+                        <div class="info-item-value" id="startTimeDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-item-label" style="margin-bottom: 0.5rem;">Report Summary</div>
+                    <div id="reportSummary" style="color: #ffffff; line-height: 1.8;"></div>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="generateReport()" style="flex: 1; padding: 0.75rem; justify-content: center;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Generate Full Report (TXT)
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportCSV()" style="flex: 1; padding: 0.75rem; justify-content: center; background: #3b82f6;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Export Data (CSV)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Tab -->
+        <div id="data" class="tab-content">
+            <div class="chart-container">
+                <h2 class="chart-title" style="margin-bottom: 1.5rem;">Data Storage & Integration</h2>
+                
+                <div class="storage-item">
+                    <div class="storage-left">
+                        <svg width="24" height="24" fill="none" stroke="#10b981" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                        </svg>
+                        <div>
+                            <div class="storage-title">Cloud Storage</div>
+                            <div class="storage-subtitle">Data securely stored in encrypted cloud</div>
+                        </div>
+                    </div>
+                    <span class="status-badge status-active">Active</span>
+                </div>
+
+                <div class="storage-item">
+                    <div class="storage-left">
+                        <svg width="24" height="24" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                        </svg>
+                        <div>
+                            <div class="storage-title">National Organ Registry</div>
+                            <div class="storage-subtitle">API integration for real-time updates</div>
+                        </div>
+                    </div>
+                    <span class="status-badge status-connected">Connected</span>
+                </div>
+
+                <div class="storage-item">
+                    <div class="storage-left">
+                        <svg width="24" height="24" fill="none" stroke="#a855f7" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                        </svg>
+                        <div>
+                            <div class="storage-title">IoT Sensors</div>
+                            <div class="storage-subtitle">Temperature, humidity monitoring</div>
+                        </div>
+                    </div>
+                    <span class="status-badge status-synced">Synced</span>
+                </div>
+
+                <div class="info-box" style="margin-top: 1rem;">
+                    <div class="info-item-label" style="margin-bottom: 0.5rem;">Storage Statistics</div>
+                    <div id="storageStats" style="color: #ffffff; line-height: 1.8;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- End Session Button -->
+        <div class="end-session-container">
+            <button class="btn btn-danger" id="endSessionBtn" onclick="endSession()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                End Monitoring Session
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global State
+        let isMonitoring = true;
+        let currentViability = 92;
+        let viabilityData = [];
+        let alerts = [];
+        let startTime = new Date();
+        
+        const organInfo = {
+            id: 'ORG-2025-1847',
+            type: 'Kidney',
+            donorAge: 42
+        };
+
+        // Initialize
+        document.getElementById('startTimeDisplay').textContent = startTime.toLocaleString();
+        updateReportSummary();
+        updateStorageStats();
+        initChart();
+        startMonitoring();
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Monitoring Loop
+        function startMonitoring() {
+            if (!isMonitoring) return;
+            
+            setInterval(() => {
+                if (!isMonitoring) return;
+                
+                const variance = Math.random() * 6 - 3;
+                currentViability = Math.max(70, Math.min(100, currentViability + variance));
+                
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString();
+                
+                viabilityData.push({
+                    time: timeStr,
+                    viability: currentViability
+                });
+                
+                if (viabilityData.length > 20) {
+                    viabilityData.shift();
+                }
+                
+                updateDashboard();
+                updateChart();
+                
+                // Generate alerts
+                if (currentViability < 80 && Math.random() > 0.7) {
+                    const alert = {
+                        id: Date.now(),
+                        time: timeStr,
+                        message: `Viability dropped to ${currentViability.toFixed(1)}%`,
+                        severity: currentViability < 75 ? 'critical' : 'warning',
+                        acknowledged: false
+                    };
+                    alerts.unshift(alert);
+                    if (alerts.length > 10) alerts.pop();
+                    updateAlerts();
+                }
+                
+                updateReportSummary();
+                updateStorageStats();
+            }, 3000);
+            
+            // Update monitoring time
+            setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime.getTime()) / 60000);
+                document.getElementById('monitoringTime').textContent = elapsed + ' min';
+            }, 1000);
+        }
+
+        // Update Dashboard
+        function updateDashboard() {
+            const viabilityEl = document.getElementById('currentViability');
+            viabilityEl.textContent = currentViability.toFixed(1) + '%';
+            viabilityEl.style.color = getViabilityColor(currentViability);
+            
+            const activeAlertsCount = alerts.filter(a => !a.acknowledged).length;
+            document.getElementById('activeAlerts').textContent = activeAlertsCount;
+        }
+
+        // Get Viability Color
+        function getViabilityColor(value) {
+            if (value >= 90) return '#10b981';
+            if (value >= 80) return '#f59e0b';
+            if (value >= 70) return '#ef4444';
+            return '#dc2626';
+        }
+
+        // Initialize Chart
+        function initChart() {
+            const trace = {
+                x: [],
+                y: [],
+                type: 'scatter',
+                mode: 'lines+markers',
+                fill: 'tozeroy',
+                fillcolor: 'rgba(245, 158, 11, 0.2)',
+                line: {
+                    color: '#f59e0b',
+                    width: 2
+                },
+                marker: {
+                    color: '#f59e0b',
+                    size: 6
+                }
+            };
+
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: {
+                    color: '#9ca3af'
+                },
+                xaxis: {
+                    gridcolor: '#374151',
+                    title: 'Time'
+                },
+                yaxis: {
+                    gridcolor: '#374151',
+                    title: 'Viability (%)',
+                    range: [60, 100]
+                },
+                margin: {
+                    l: 50,
+                    r: 20,
+                    t: 20,
+                    b: 50
+                }
+            };
+
+            Plotly.newPlot('chart', [trace], layout, {responsive: true});
+        }
+
+        // Update Chart
+        function updateChart() {
+            const times = viabilityData.map(d => d.time);
+            const values = viabilityData.map(d => d.viability);
+            
+            Plotly.update('chart', {
+                x: [times],
+                y: [values]
+            }, {}, [0]);
+        }
+
+        // Update Alerts
+        function updateAlerts() {
+            const recentAlertsHtml = alerts.slice(0, 3).map(alert => `
+                <div class="alert-item ${alert.acknowledged ? 'alert-acknowledged' : alert.severity === 'critical' ? 'alert-critical' : 'alert-warning'}">
+                    <div class="alert-left">
+                        <svg class="alert-icon" fill="none" stroke="${alert.severity === 'critical' ? '#ef4444' : '#f59e0b'}" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>
+                            <div class="alert-message">${alert.message}</div>
+                            <div class="alert-time">${alert.time}</div>
+                        </div>
+                    </div>
+                    ${!alert.acknowledged ? `
+                        <button class="btn btn-secondary" onclick="acknowledgeAlert(${alert.id})">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                            </svg>
+                            Acknowledge
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+            
+            document.getElementById('recentAlerts').innerHTML = recentAlertsHtml || '<div class="empty-state">No alerts recorded</div>';
+            
+            const allAlertsHtml = alerts.map(alert => `
+                <div class="alert-item ${alert.acknowledged ? 'alert-acknowledged' : alert.severity === 'critical' ? 'alert-critical' : 'alert-warning'}">
+                    <div class="alert-left">
+                        <svg class="alert-icon" fill="none" stroke="${alert.severity === 'critical' ? '#ef4444' : '#f59e0b'}" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>
+                            <div class="alert-message">${alert.message}</div>
+                            <div class="alert-time">${alert.time} • ${alert.severity.toUpperCase()}${alert.acknowledged ? ' • Acknowledged' : ''}</div>
+                        </div>
+                    </div>
+                    ${!alert.acknowledged ? `
+                        <button class="btn btn-secondary" onclick="acknowledgeAlert(${alert.id})">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                            </svg>
+                            Acknowledge
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+            
+            document.getElementById('allAlerts').innerHTML = allAlertsHtml || '<div class="empty-state">No alerts to display</div>';
+        }
+
+        // Acknowledge Alert
+        function acknowledgeAlert(id) {
+            alerts = alerts.map(alert => 
+                alert.id === id ? {...alert, acknowledged: true} : alert
+            );
+            updateAlerts();
+            updateDashboard();
+        }
+
+        // Update Report Summary
+        function updateReportSummary() {
+            if (viabilityData.length === 0) {
+                document.getElementById('reportSummary').innerHTML = `
+                    <div>Average Viability: N/A</div>
+                    <div>Total Data Points: 0</div>
+                    <div>Total Alerts: 0</div>
+                    <div>Critical Alerts: 0</div>
+                `;
+                return;
+            }
+            
+            const avgViability = (viabilityData.reduce((acc, d) => acc + d.viability, 0) / viabilityData.length).toFixed(2);
+            const criticalAlerts = alerts.filter(a => a.severity === 'critical').length;
+            
+            document.getElementById('reportSummary').innerHTML = `
+                <div>Average Viability: ${avgViability}%</div>
+                <div>Total Data Points: ${viabilityData.length}</div>
+                <div>Total Alerts: ${alerts.length}</div>
+                <div>Critical Alerts: ${criticalAlerts}</div>
+            `;
+        }
+
+        // Update Storage Stats
+        function updateStorageStats() {
+            const storageSize = (viabilityData.length * 0.1).toFixed(1);
+            document.getElementById('storageStats').innerHTML = `
+                <div>Records Stored: ${viabilityData.length}</div>
+                <div>Last Sync: ${new Date().toLocaleTimeString()}</div>
+                <div>Storage Used: ${storageSize} MB</div>
+            `;
+        }
+
+        // Generate Report
+        function generateReport() {
+            if (viabilityData.length === 0) {
+                alert('No data available to generate report');
+                return;
+            }
+            
+            const avgViability = (viabilityData.reduce((acc, d) => acc + d.viability, 0) / viabilityData.length).toFixed(2);
+            const minViability = Math.min(...viabilityData.map(d => d.viability)).toFixed(2);
+            const maxViability = Math.max(...viabilityData.map(d => d.viability)).toFixed(2);
+            const criticalAlerts = alerts.filter(a => a.severity === 'critical').length;
+            
+            const reportText = `ORGAN TRANSPLANT MONITORING REPORT
+========================================
+
+Organ ID: ${organInfo.id}
+Type: ${organInfo.type}
+Donor Age: ${organInfo.donorAge} years
+Monitoring Period: ${startTime.toLocaleString()} - ${new Date().toLocaleString()}
+
+VIABILITY METRICS:
+------------------
+Average: ${avgViability}%
+Minimum: ${minViability}%
+Maximum: ${maxViability}%
+Current: ${currentViability.toFixed(2)}%
+
+ALERTS:
+-------
+Total: ${alerts.length}
+Critical: ${criticalAlerts}
+Warning: ${alerts.length - criticalAlerts}
+
+ALERT LOG:
+----------
+${alerts.map(a => `[${a.time}] ${a.severity.toUpperCase()}: ${a.message}${a.acknowledged ? ' (Acknowledged)' : ''}`).join('\n')}
+
+DATA POINTS: ${viabilityData.length}
+========================================
+Report generated: ${new Date().toLocaleString()}
+`;
+            
+            const blob = new Blob([reportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `organ_report_${organInfo.id}_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Export CSV
+        function exportCSV() {
+            if (viabilityData.length === 0) {
+                alert('No data available to export');
+                return;
+            }
+            
+            const csvContent = "Time,Viability\n" + 
+                viabilityData.map(d => `${d.time},${d.viability.toFixed(2)}`).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `viability_data_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // End Session
+        function endSession() {
+            if (!isMonitoring) {
+                alert('Session already ended');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to end monitoring session? All data will be saved and a report will be generated.')) {
+                isMonitoring = false;
+                document.getElementById('liveIndicator').style.display = 'none';
+                document.getElementById('endSessionBtn').disabled = true;
+                generateReport();
+                alert('Session ended. Report has been downloaded.');
+            }
+        }
+    </script>
+</body>
+</html>

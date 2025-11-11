@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Organ Viability Monitoring System</title>
+    <script src="/_sdk/element_sdk.js"></script>
+    <script src="/_sdk/data_sdk.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        color: #e0e0e0;
+        min-height: 100%;
+        overflow-x: hidden;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 2rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        color: #888;
+        font-size: 1rem;
+      }
+
+      .session-info {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .session-badge {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        color: #00d4ff;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.5rem;
+        border-radius: 12px;
+        overflow-x: auto;
+      }
+
+      .tab {
+        flex: 1;
+        min-width: 120px;
+        padding: 1rem 1.5rem;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        color: #888;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .tab:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #e0e0e0;
+      }
+
+      .tab.active {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        color: #0a0a0a;
+      }
+
+      .tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        border-color: rgba(0, 212, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 1.5rem 0;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .status-indicator {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+        color: #0a0a0a;
+        box-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+      }
+
+      .status-label {
+        text-align: center;
+        font-size: 1.125rem;
+        color: #00ff88;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .chart-container {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: 200px;
+        position: relative;
+      }
+
+      .chart-line {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        height: 140px;
+      }
+
+      .chart-path {
+        stroke: #00d4ff;
+        stroke-width: 3;
+        fill: none;
+        filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.5));
+      }
+
+      .chart-fill {
+        fill: url(#gradient);
+        opacity: 0.2;
+      }
+
+      .alert-banner {
+        background: rgba(255, 68, 68, 0.1);
+        border: 2px solid #ff4444;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 40px rgba(255, 68, 68, 0.6);
+        }
+      }
+
+      .alert-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .alert-icon {
+        font-size: 3rem;
+        animation: shake 0.5s ease-in-out infinite;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: rotate(0deg);
+        }
+        25% {
+          transform: rotate(-10deg);
+        }
+        75% {
+          transform: rotate(10deg);
+        }
+      }
+
+      .intervention-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+      }
+
+      .intervention-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .intervention-card:hover {
+        border-color: rgba(0, 212, 255, 0.5);
+        transform: translateY(-4px);
+      }
+
+      .intervention-card.applied {
+        border-color: #00ff88;
+        background: rgba(0, 255, 136, 0.1);
+      }
+
+      .priority-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .priority-badge.high {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff4444;
+      }
+
+      .priority-badge.medium {
+        background: rgba(255, 170, 0, 0.2);
+        color: #ffaa00;
+      }
+
+      .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        color: #0a0a0a;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3);
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e0e0e0;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+        color: #0a0a0a;
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+        color: #fff;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #fff;
+        font-weight: 600;
+      }
+
+      .form-select {
+        width: 100%;
+        padding: 0.75rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-size: 1rem;
+      }
+
+      .report-preview {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+      }
+
+      .report-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .report-section:last-child {
+        border-bottom: none;
+      }
+
+      .report-section h3 {
+        color: #00d4ff;
+        margin: 0 0 1rem 0;
+      }
+
+      .report-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+
+      .integration-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+      }
+
+      .integration-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .integration-card:hover {
+        border-color: rgba(0, 212, 255, 0.5);
+        transform: translateY(-4px);
+      }
+
+      .integration-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .status-badge.active {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+      }
+
+      .status-badge.inactive {
+        background: rgba(136, 136, 136, 0.2);
+        color: #888;
+      }
+
+      .end-session-container {
+        text-align: center;
+        padding: 3rem 0;
+      }
+
+      .session-summary {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 2rem 0;
+        text-align: left;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .summary-item {
+        text-align: center;
+      }
+
+      .summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 0.5rem;
+      }
+
+      .summary-label {
+        color: #888;
+        font-size: 0.875rem;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: rgba(26, 26, 26, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        animation: slideInRight 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      @keyframes slideInRight {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .toast.success {
+        border-left: 3px solid #00ff88;
+      }
+      .toast.error {
+        border-left: 3px solid #ff4444;
+      }
+      .toast.info {
+        border-left: 3px solid #00d4ff;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(0, 212, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #00d4ff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+        h1 {
+          font-size: 2rem;
+        }
+        .tabs {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+        }
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+    </style>
+    <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1 id="app-title" style="font-size: larger">
+          Organ Viability Monitoring System
+        </h1>
+        <p class="subtitle">
+          Comprehensive real-time monitoring and management
+        </p>
+        <div class="session-info">
+          <div class="session-badge">
+            Organ ID: <span id="organ-id">ORG-2024-001</span>
+          </div>
+          <div class="session-badge">
+            Session Time: <span id="session-timer">00:00:00</span>
+          </div>
+          <div class="session-badge">
+            Status: <span id="session-status">Active</span>
+          </div>
+        </div>
+      </header>
+      <nav class="tabs">
+        <button class="tab active" data-tab="dashboard" id="tab-dashboard">
+          Dashboard
+        </button>
+        <button class="tab" data-tab="alerts" id="tab-alerts">Alerts</button>
+        <button class="tab" data-tab="reports" id="tab-reports">Reports</button>
+        <button class="tab" data-tab="end" id="tab-end">
+          <a href="home.html">End Session</a>
+        </button>
+      </nav>
+      <main>
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="content-dashboard">
+          <div class="grid-2">
+            <div class="card">
+              <h2 class="card-title">
+                <i class="ri-heart-pulse-line">Current Organ Status</i>
+              </h2>
+              <div class="status-indicator">92%</div>
+              <div class="status-label">Excellent Viability</div>
+              <div style="text-align: center; color: #888; font-size: 0.875rem">
+                Last updated: 2 minutes ago
+              </div>
+            </div>
+            <div class="card">
+              <h2 class="card-title">
+                <i class="ri-pulse-line"> Viability Trend</i>
+              </h2>
+              <div class="chart-container">
+                <svg
+                  class="chart-line"
+                  viewbox="0 0 300 140"
+                  preserveaspectratio="none"
+                >
+                  <defs>
+                    <lineargradient
+                      id="gradient"
+                      x1="0%"
+                      y1="0%"
+                      x2="0%"
+                      y2="100%"
+                    >
+                      <stop
+                        offset="0%"
+                        style="stop-color: #00d4ff; stop-opacity: 0.5"
+                      />
+                      <stop
+                        offset="100%"
+                        style="stop-color: #00d4ff; stop-opacity: 0"
+                      />
+                    </lineargradient>
+                  </defs>
+                  <path
+                    class="chart-fill"
+                    d="M0,140 L0,50 Q75,45 150,40 T300,30 L300,140 Z"
+                  />
+                  <path class="chart-path" d="M0,50 Q75,45 150,40 T300,30" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title">
+              <i class="ri-notification-3-line">Recent Alerts</i>
+            </h2>
+            <div id="alert-log">
+              <div
+                style="
+                  background: rgba(0, 212, 255, 0.1);
+                  border-left: 3px solid #00d4ff;
+                  padding: 1rem;
+                  border-radius: 8px;
+                  margin-bottom: 0.75rem;
+                "
+              >
+                <div style="font-weight: 600; color: #fff">
+                  Temperature stabilized
+                </div>
+                <div style="font-size: 0.875rem; color: #888">
+                  5 minutes ago
+                </div>
+              </div>
+              <div
+                style="
+                  background: rgba(255, 170, 0, 0.1);
+                  border-left: 3px solid #ffaa00;
+                  padding: 1rem;
+                  border-radius: 8px;
+                "
+              >
+                <div style="font-weight: 600; color: #fff">
+                  Oxygen level fluctuation detected
+                </div>
+                <div style="font-size: 0.875rem; color: #888">
+                  12 minutes ago
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Alerts Tab -->
+        <div class="tab-content" id="content-alerts">
+          <div class="alert-banner">
+            <div class="alert-header">
+              <div class="alert-icon">🚨</div>
+              <div>
+                <h2
+                  style="
+                    margin: 0 0 0.5rem 0;
+                    color: #ff4444;
+                    font-size: 1.75rem;
+                  "
+                >
+                  Critical Viability Alert
+                </h2>
+                <p style="margin: 0; font-size: 1.125rem">
+                  Organ viability has dropped below critical threshold
+                </p>
+              </div>
+            </div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid rgba(255, 68, 68, 0.3);
+              "
+            >
+              <div style="text-align: center">
+                <div style="font-size: 0.875rem; color: #888">
+                  Current Viability
+                </div>
+                <div
+                  style="font-size: 1.5rem; font-weight: 700; color: #ff4444"
+                >
+                  68%
+                </div>
+              </div>
+              <div style="text-align: center">
+                <div style="font-size: 0.875rem; color: #888">Threshold</div>
+                <div
+                  style="font-size: 1.5rem; font-weight: 700; color: #ff4444"
+                >
+                  75%
+                </div>
+              </div>
+              <div style="text-align: center">
+                <div style="font-size: 0.875rem; color: #888">Time Elapsed</div>
+                <div
+                  style="font-size: 1.5rem; font-weight: 700; color: #ff4444"
+                >
+                  3 min
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title">Notification Status</h2>
+            <div style="display: flex; flex-direction: column; gap: 1rem">
+              <div
+                style="
+                  background: rgba(0, 0, 0, 0.3);
+                  border-left: 3px solid #00ff88;
+                  padding: 1.25rem;
+                  border-radius: 12px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <div style="display: flex; align-items: center; gap: 1rem">
+                  <span style="font-size: 1.5rem">📱</span>
+                  <div>
+                    <div style="font-weight: 600; color: #fff">
+                      Transplant Surgeon
+                    </div>
+                    <div style="font-size: 0.875rem; color: #888">
+                      Dr. Sarah Chen • SMS sent
+                    </div>
+                  </div>
+                </div>
+                <span class="status-badge active">✓ Sent</span>
+              </div>
+              <div
+                style="
+                  background: rgba(0, 0, 0, 0.3);
+                  border-left: 3px solid #00ff88;
+                  padding: 1.25rem;
+                  border-radius: 12px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <div style="display: flex; align-items: center; gap: 1rem">
+                  <span style="font-size: 1.5rem">🏥</span>
+                  <div>
+                    <div style="font-weight: 600; color: #fff">
+                      Hospital Control Room
+                    </div>
+                    <div style="font-size: 0.875rem; color: #888">
+                      Emergency notification sent
+                    </div>
+                  </div>
+                </div>
+                <span class="status-badge active">✓ Sent</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="card-title"><span>💡</span> Suggested Interventions</h2>
+            <div class="intervention-cards">
+              <div class="intervention-card" data-intervention="cooling">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1rem;
+                  "
+                >
+                  <span style="font-size: 2rem">❄️</span>
+                  <span class="priority-badge high">High Priority</span>
+                </div>
+                <h3 style="margin: 0 0 0.5rem 0; color: #fff">
+                  Increase Cooling
+                </h3>
+                <p style="margin: 0 0 1rem 0; color: #888; font-size: 0.875rem">
+                  Lower temperature by 2°C to preserve organ tissue
+                </p>
+                <button
+                  class="btn btn-primary apply-intervention"
+                  style="width: 100%"
+                >
+                  Apply Intervention
+                </button>
+              </div>
+              <div class="intervention-card" data-intervention="perfusion">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1rem;
+                  "
+                >
+                  <span style="font-size: 2rem">💉</span>
+                  <span class="priority-badge high">High Priority</span>
+                </div>
+                <h3 style="margin: 0 0 0.5rem 0; color: #fff">
+                  Check Perfusion
+                </h3>
+                <p style="margin: 0 0 1rem 0; color: #888; font-size: 0.875rem">
+                  Verify perfusion pump functionality
+                </p>
+                <button
+                  class="btn btn-primary apply-intervention"
+                  style="width: 100%"
+                >
+                  Apply Intervention
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Reports Tab -->
+        <div class="tab-content" id="content-reports">
+          <div class="card">
+            <h2 class="card-title">Generate Report</h2>
+            <div class="form-group">
+              <label class="form-label">Select Time Frame</label>
+              <select class="form-select" id="report-timeframe">
+                <option value="transport">During Transport</option>
+                <option value="2hrs">Last 2 Hours</option>
+                <option value="6hrs">Last 6 Hours</option>
+                <option value="24hrs">Last 24 Hours</option>
+                <option value="all">Entire Session</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="generate-report-btn">
+              Generate Report
+            </button>
+          </div>
+          <div class="card" id="report-preview-container" style="display: none">
+            <h2 class="card-title"><span>📋</span> Report Preview</h2>
+            <div class="report-preview">
+              <div class="report-section">
+                <h3>Organ Information</h3>
+                <div class="report-row">
+                  <span style="color: #888">Organ ID:</span>
+                  <span style="color: #fff; font-weight: 600"
+                    >ORG-2024-001</span
+                  >
+                </div>
+                <div class="report-row">
+                  <span style="color: #888">Type:</span>
+                  <span style="color: #fff; font-weight: 600">Heart</span>
+                </div>
+                <div class="report-row">
+                  <span style="color: #888">Average Viability Score:</span>
+                  <span style="color: #00ff88; font-weight: 600">89%</span>
+                </div>
+              </div>
+              <div class="report-section">
+                <h3>Alert Summary</h3>
+                <div class="report-row">
+                  <span style="color: #888">Total Alerts:</span>
+                  <span style="color: #fff; font-weight: 600">7</span>
+                </div>
+                <div class="report-row">
+                  <span style="color: #888">Critical Alerts:</span>
+                  <span style="color: #ff4444; font-weight: 600">2</span>
+                </div>
+                <div class="report-row">
+                  <span style="color: #888">Last Alert:</span>
+                  <span style="color: #fff; font-weight: 600"
+                    >5 minutes ago</span
+                  >
+                </div>
+              </div>
+              <div class="report-section">
+                <h3>AI Condition Summary</h3>
+                <p style="color: #e0e0e0; line-height: 1.6; margin: 0">
+                  The organ has maintained excellent viability throughout the
+                  monitoring period. Temperature and perfusion parameters
+                  remained within optimal ranges. Two brief fluctuations were
+                  detected and successfully addressed through automated
+                  interventions. Overall condition is suitable for
+                  transplantation.
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem">
+              <button class="btn btn-primary" id="download-pdf-btn">
+                <span>📥</span> Download PDF
+              </button>
+              <button class="btn btn-secondary" id="send-registry-btn">
+                <span>📤</span> Send to Registry
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Data Storage Tab -->
+        <!-- End Session Tab -->
+        <div class="tab-content" id="content-end">
+          <div class="end-session-container">
+            <div class="card">
+              <h2 class="card-title">Session Summary</h2>
+              <div class="session-summary">
+                <div class="summary-grid" id="session-summary-grid">
+                  <div class="summary-item">
+                    <div class="summary-value" id="summary-duration">
+                      00:00:00
+                    </div>
+                    <div class="summary-label">Session Duration</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value" id="summary-viability">92%</div>
+                    <div class="summary-label">Final Viability</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value" id="summary-alerts">0</div>
+                    <div class="summary-label">Total Alerts</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value" id="summary-interventions">
+                      0
+                    </div>
+                    <div class="summary-label">Interventions Applied</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <h2 class="card-title"><span>💾</span> Data Preservation</h2>
+              <p style="text-align: center; color: #888; margin-bottom: 2rem">
+                All monitoring data, alerts, and reports will be securely saved
+                before ending the session.
+              </p>
+              <div
+                style="
+                  background: rgba(0, 212, 255, 0.1);
+                  border: 1px solid #00d4ff;
+                  border-radius: 12px;
+                  padding: 1.5rem;
+                  margin-bottom: 2rem;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    margin-bottom: 0.5rem;
+                  "
+                >
+                  <span style="font-size: 1.5rem">✓</span>
+                  <span style="color: #fff; font-weight: 600"
+                    >Session data backed up</span
+                  >
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    margin-bottom: 0.5rem;
+                  "
+                >
+                  <span style="font-size: 1.5rem">✓</span>
+                  <span style="color: #fff; font-weight: 600"
+                    >Reports generated and stored</span
+                  >
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem">
+                  <span style="font-size: 1.5rem">✓</span>
+                  <span style="color: #fff; font-weight: 600"
+                    >Registry updated</span
+                  >
+                </div>
+              </div>
+              <button
+                class="btn btn-danger"
+                id="end-session-btn"
+                style="width: 100%; font-size: 1.125rem; padding: 1.25rem"
+              >
+                <span>🔚</span> End Case Monitoring
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script>
+      const defaultConfig = {
+        app_title: "Organ Viability Monitoring System",
+        dashboard_tab: "Dashboard",
+        alerts_tab: "Alerts",
+        reports_tab: "Reports",
+        storage_tab: "Data Storage",
+        background_color: "#0a0a0a",
+        card_background: "#1a1a1a",
+        accent_color: "#00d4ff",
+        text_color: "#e0e0e0",
+        success_color: "#00ff88",
+        font_family: "Inter",
+        font_size: 16,
+      };
+
+      let config = { ...defaultConfig };
+      let sessionRecords = [];
+      let sessionStartTime = Date.now();
+      let sessionTimer;
+      let currentViability = 92;
+      let viabilityHistory = [95, 94, 93, 92, 91, 92, 93, 92];
+      let viabilityUpdateInterval;
+
+      async function onConfigChange(newConfig) {
+        config = { ...config, ...newConfig };
+
+        const customFont = config.font_family || defaultConfig.font_family;
+        const baseSize = config.font_size || defaultConfig.font_size;
+        const baseFontStack =
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+        document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+        document.body.style.fontSize = `${baseSize}px`;
+
+        document.getElementById("app-title").textContent =
+          config.app_title || defaultConfig.app_title;
+        document.getElementById("tab-dashboard").innerHTML = `📊 ${
+          config.dashboard_tab || defaultConfig.dashboard_tab
+        }`;
+        document.getElementById("tab-alerts").innerHTML = `🚨 ${
+          config.alerts_tab || defaultConfig.alerts_tab
+        }`;
+        document.getElementById("tab-reports").innerHTML = `🩺 ${
+          config.reports_tab || defaultConfig.reports_tab
+        }`;
+        document.getElementById("tab-storage").innerHTML = `📁 ${
+          config.storage_tab || defaultConfig.storage_tab
+        }`;
+
+        document.body.style.background = `linear-gradient(135deg, ${
+          config.background_color || defaultConfig.background_color
+        } 0%, ${config.card_background || defaultConfig.card_background} 100%)`;
+        document.body.style.color =
+          config.text_color || defaultConfig.text_color;
+
+        const h1 = document.querySelector("h1");
+        h1.style.background = `linear-gradient(135deg, ${
+          config.accent_color || defaultConfig.accent_color
+        } 0%, #0099ff 100%)`;
+        h1.style.webkitBackgroundClip = "text";
+        h1.style.webkitTextFillColor = "transparent";
+        h1.style.backgroundClip = "text";
+        h1.style.fontSize = `${baseSize * 2.5}px`;
+      }
+
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () =>
+                  config.background_color || defaultConfig.background_color,
+                set: (value) => {
+                  config.background_color = value;
+                  window.elementSdk.setConfig({ background_color: value });
+                },
+              },
+              {
+                get: () =>
+                  config.card_background || defaultConfig.card_background,
+                set: (value) => {
+                  config.card_background = value;
+                  window.elementSdk.setConfig({ card_background: value });
+                },
+              },
+              {
+                get: () => config.accent_color || defaultConfig.accent_color,
+                set: (value) => {
+                  config.accent_color = value;
+                  window.elementSdk.setConfig({ accent_color: value });
+                },
+              },
+              {
+                get: () => config.text_color || defaultConfig.text_color,
+                set: (value) => {
+                  config.text_color = value;
+                  window.elementSdk.setConfig({ text_color: value });
+                },
+              },
+              {
+                get: () => config.success_color || defaultConfig.success_color,
+                set: (value) => {
+                  config.success_color = value;
+                  window.elementSdk.setConfig({ success_color: value });
+                },
+              },
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => config.font_family || defaultConfig.font_family,
+              set: (value) => {
+                config.font_family = value;
+                window.elementSdk.setConfig({ font_family: value });
+              },
+            },
+            fontSizeable: {
+              get: () => config.font_size || defaultConfig.font_size,
+              set: (value) => {
+                config.font_size = value;
+                window.elementSdk.setConfig({ font_size: value });
+              },
+            },
+          }),
+          mapToEditPanelValues: (config) =>
+            new Map([
+              ["app_title", config.app_title || defaultConfig.app_title],
+              [
+                "dashboard_tab",
+                config.dashboard_tab || defaultConfig.dashboard_tab,
+              ],
+              ["alerts_tab", config.alerts_tab || defaultConfig.alerts_tab],
+              ["reports_tab", config.reports_tab || defaultConfig.reports_tab],
+              ["storage_tab", config.storage_tab || defaultConfig.storage_tab],
+            ]),
+        });
+      }
+
+      const dataHandler = {
+        onDataChanged(data) {
+          sessionRecords = data;
+          renderSessionHistory();
+        },
+      };
+
+      async function initDataSdk() {
+        if (window.dataSdk) {
+          const result = await window.dataSdk.init(dataHandler);
+          if (!result.isOk) {
+            console.error("Failed to initialize Data SDK");
+          }
+        }
+      }
+
+      initDataSdk();
+
+      function showToast(message, type = "success") {
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+        <div style="font-size: 1.5rem;">${
+          type === "success" ? "✓" : type === "error" ? "✕" : "ℹ"
+        }</div>
+        <div style="color: #fff; font-weight: 600;">${message}</div>
+      `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.animation = "slideInRight 0.3s ease reverse";
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      function formatTime(seconds) {
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(
+          2,
+          "0"
+        )}:${String(secs).padStart(2, "0")}`;
+      }
+
+      function updateSessionTimer() {
+        const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+        document.getElementById("session-timer").textContent =
+          formatTime(elapsed);
+      }
+
+      function updateViabilityDisplay() {
+        const statusIndicator = document.querySelector(".status-indicator");
+        const statusLabel = document.querySelector(".status-label");
+
+        statusIndicator.textContent = `${currentViability}%`;
+
+        if (currentViability >= 75) {
+          statusIndicator.style.background =
+            "linear-gradient(135deg, #00ff88 0%, #00cc66 100%)";
+          statusIndicator.style.boxShadow = "0 0 40px rgba(0, 255, 136, 0.3)";
+          statusLabel.textContent = "Excellent Viability";
+          statusLabel.style.color = "#00ff88";
+        } else if (currentViability >= 50) {
+          statusIndicator.style.background =
+            "linear-gradient(135deg, #ffaa00 0%, #ff8800 100%)";
+          statusIndicator.style.boxShadow = "0 0 40px rgba(255, 170, 0, 0.3)";
+          statusLabel.textContent = "Warning - Monitor Closely";
+          statusLabel.style.color = "#ffaa00";
+        } else {
+          statusIndicator.style.background =
+            "linear-gradient(135deg, #ff4444 0%, #cc0000 100%)";
+          statusIndicator.style.boxShadow = "0 0 40px rgba(255, 68, 68, 0.3)";
+          statusLabel.textContent = "Critical - Immediate Action Required";
+          statusLabel.style.color = "#ff4444";
+        }
+
+        updateViabilityChart();
+        updateAlertSection();
+      }
+
+      function updateViabilityChart() {
+        const chartPath = document.querySelector(".chart-path");
+        const chartFill = document.querySelector(".chart-fill");
+
+        const points = viabilityHistory.slice(-8);
+        const width = 300;
+        const height = 140;
+        const segmentWidth = width / (points.length - 1);
+
+        let pathD = `M0,${height - points[0] * 1.4}`;
+        let fillD = `M0,${height} L0,${height - points[0] * 1.4}`;
+
+        for (let i = 1; i < points.length; i++) {
+          const x = i * segmentWidth;
+          const y = height - points[i] * 1.4;
+          pathD += ` L${x},${y}`;
+          fillD += ` L${x},${y}`;
+        }
+
+        fillD += ` L${width},${height} Z`;
+
+        chartPath.setAttribute("d", pathD);
+        chartFill.setAttribute("d", fillD);
+      }
+
+      function updateAlertSection() {
+        const alertBanner = document.querySelector(".alert-banner");
+        const alertDetails = alertBanner.querySelector(
+          '[style*="grid-template-columns"]'
+        );
+
+        if (currentViability <= 50) {
+          alertBanner.style.display = "block";
+          alertDetails.innerHTML = `
+          <div style="text-align: center;">
+            <div style="font-size: 0.875rem; color: #888;">Current Viability</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #ff4444;">${currentViability}%</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 0.875rem; color: #888;">Threshold</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #ff4444;">75%</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 0.875rem; color: #888;">Time Elapsed</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #ff4444;">${Math.floor(
+              (Date.now() - sessionStartTime) / 60000
+            )} min</div>
+          </div>
+        `;
+        } else {
+          alertBanner.style.display = "none";
+        }
+      }
+
+      function simulateViabilityChange() {
+        const change = (Math.random() - 0.5) * 3;
+        currentViability = Math.max(
+          30,
+          Math.min(100, currentViability + change)
+        );
+        currentViability = Math.round(currentViability);
+
+        viabilityHistory.push(currentViability);
+        if (viabilityHistory.length > 20) {
+          viabilityHistory.shift();
+        }
+
+        updateViabilityDisplay();
+      }
+
+      sessionTimer = setInterval(updateSessionTimer, 1000);
+      viabilityUpdateInterval = setInterval(simulateViabilityChange, 5000);
+
+      updateViabilityDisplay();
+
+      function updateSessionSummary() {
+        const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+        document.getElementById("summary-duration").textContent =
+          formatTime(elapsed);
+        document.getElementById(
+          "summary-viability"
+        ).textContent = `${currentViability}%`;
+
+        const alertCount = currentViability <= 50 ? 7 : 2;
+        const interventionCount = document.querySelectorAll(
+          ".intervention-card.applied"
+        ).length;
+
+        document.getElementById("summary-alerts").textContent = alertCount;
+        document.getElementById("summary-interventions").textContent =
+          interventionCount;
+      }
+
+      const tabs = document.querySelectorAll(".tab");
+      const tabContents = document.querySelectorAll(".tab-content");
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const targetTab = tab.dataset.tab;
+
+          tabs.forEach((t) => t.classList.remove("active"));
+          tabContents.forEach((tc) => tc.classList.remove("active"));
+
+          tab.classList.add("active");
+          document
+            .getElementById(`content-${targetTab}`)
+            .classList.add("active");
+
+          if (targetTab === "end") {
+            updateSessionSummary();
+          }
+        });
+      });
+
+      const applyInterventionBtns = document.querySelectorAll(
+        ".apply-intervention"
+      );
+      applyInterventionBtns.forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const card = this.closest(".intervention-card");
+          const interventionName = card.querySelector("h3").textContent;
+
+          if (!card.classList.contains("applied")) {
+            card.classList.add("applied");
+            this.textContent = "✓ Applied";
+            this.style.background = "rgba(0, 255, 136, 0.2)";
+            this.style.borderColor = "#00ff88";
+            this.style.color = "#00ff88";
+            showToast(`${interventionName} applied successfully`);
+          }
+        });
+      });
+
+      document
+        .getElementById("generate-report-btn")
+        .addEventListener("click", () => {
+          const timeframe = document.getElementById("report-timeframe").value;
+          showToast("Generating report...", "info");
+
+          setTimeout(() => {
+            document.getElementById("report-preview-container").style.display =
+              "block";
+            document
+              .getElementById("report-preview-container")
+              .scrollIntoView({ behavior: "smooth" });
+            showToast("Report generated successfully");
+          }, 1500);
+        });
+
+      document
+        .getElementById("download-pdf-btn")
+        .addEventListener("click", () => {
+          showToast("PDF report downloaded successfully");
+        });
+
+      document
+        .getElementById("send-registry-btn")
+        .addEventListener("click", () => {
+          showToast("Report sent to transplant registry");
+        });
+
+      document
+        .getElementById("end-session-btn")
+        .addEventListener("click", async () => {
+          const btn = document.getElementById("end-session-btn");
+          btn.disabled = true;
+          btn.innerHTML = '<span class="loading"></span> Ending session...';
+
+          if (window.dataSdk && sessionRecords.length < 999) {
+            const sessionData = {
+              session_id: `SESSION-${Date.now()}`,
+              organ_id: document.getElementById("organ-id").textContent,
+              start_time: new Date(sessionStartTime).toISOString(),
+              end_time: new Date().toISOString(),
+              viability_score: currentViability,
+              alerts_count: currentViability <= 50 ? 7 : 2,
+              interventions_applied:
+                currentViability <= 50 ? "Cooling, Perfusion" : "None",
+              status: "Completed",
+            };
+
+            const result = await window.dataSdk.create(sessionData);
+
+            if (result.isOk) {
+              setTimeout(() => {
+                showToast("Session ended and data saved successfully");
+                document.getElementById("session-status").textContent =
+                  "Completed";
+                btn.innerHTML = "<span>✓</span> Session Ended";
+                clearInterval(sessionTimer);
+                clearInterval(viabilityUpdateInterval);
+              }, 2000);
+            } else {
+              showToast("Failed to save session data", "error");
+              btn.disabled = false;
+              btn.innerHTML = "<span>🔚</span> End Case Monitoring";
+            }
+          } else if (sessionRecords.length >= 999) {
+            showToast(
+              "Maximum session limit reached. Cannot save new session.",
+              "error"
+            );
+            btn.disabled = false;
+            btn.innerHTML = "<span>🔚</span> End Case Monitoring";
+          } else {
+            setTimeout(() => {
+              showToast("Session ended successfully");
+              document.getElementById("session-status").textContent =
+                "Completed";
+              btn.innerHTML = "<span>✓</span> Session Ended";
+              clearInterval(sessionTimer);
+              clearInterval(viabilityUpdateInterval);
+            }, 2000);
+          }
+        });
+
+      function renderSessionHistory() {
+        const container = document.getElementById("session-history-list");
+
+        if (sessionRecords.length === 0) {
+          container.innerHTML = `
+          <div style="text-align: center; color: #888; padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+            <div>No previous sessions found</div>
+          </div>
+        `;
+          return;
+        }
+
+        container.innerHTML = sessionRecords
+          .map(
+            (record) => `
+        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+              <div style="font-weight: 600; color: #fff; margin-bottom: 0.25rem;">${
+                record.organ_id
+              }</div>
+              <div style="font-size: 0.875rem; color: #888;">${new Date(
+                record.start_time
+              ).toLocaleString()}</div>
+            </div>
+            <span class="status-badge active">${record.status}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem;">
+            <div>
+              <div style="font-size: 0.75rem; color: #888;">Viability</div>
+              <div style="font-weight: 600; color: #00ff88;">${
+                record.viability_score
+              }%</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #888;">Alerts</div>
+              <div style="font-weight: 600; color: #fff;">${
+                record.alerts_count
+              }</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #888;">Interventions</div>
+              <div style="font-weight: 600; color: #fff;">${
+                record.interventions_applied
+              }</div>
+            </div>
+          </div>
+        </div>
+      `
+          )
+          .join("");
+      }
+    </script>
+    <script>
+      (function () {
+        function c() {
+          var b = a.contentDocument || a.contentWindow.document;
+          if (b) {
+            var d = b.createElement("script");
+            d.innerHTML =
+              "window.__CF$cv$params={r:'99bf3998031d29b7',t:'MTc2MjcxMTM4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+            b.getElementsByTagName("head")[0].appendChild(d);
+          }
+        }
+        if (document.body) {
+          var a = document.createElement("iframe");
+          a.height = 1;
+          a.width = 1;
+          a.style.position = "absolute";
+          a.style.top = 0;
+          a.style.left = 0;
+          a.style.border = "none";
+          a.style.visibility = "hidden";
+          document.body.appendChild(a);
+          if ("loading" !== document.readyState) c();
+          else if (window.addEventListener)
+            document.addEventListener("DOMContentLoaded", c);
+          else {
+            var e = document.onreadystatechange || function () {};
+            document.onreadystatechange = function (b) {
+              e(b);
+              "loading" !== document.readyState &&
+                ((document.onreadystatechange = e), c());
+            };
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
